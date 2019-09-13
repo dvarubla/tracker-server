@@ -31,6 +31,16 @@ public class Role {
     @NaturalId
     private String alias;
 
+    public Role() {
+    }
+
+    public Role(String name, String alias, Set<AppUser> users, Set<Privilege> privileges) {
+        this.name = name;
+        this.alias = alias;
+        this.users = users;
+        this.privileges = privileges;
+    }
+
     @OneToMany(
             mappedBy = "role",
             cascade = CascadeType.ALL,

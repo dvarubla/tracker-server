@@ -1,8 +1,11 @@
 package ru.aborisov.testtask.config;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.MapPropertySource;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
@@ -20,20 +23,27 @@ import java.util.HashMap;
 @ComponentScan("ru.aborisov.testtask")
 public class AppInitializer implements WebApplicationInitializer {
 
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
+
     @Override
     public void onStartup(ServletContext servletContext) {
         /*получение аргументов командной строки*/
-        HashMap<String, Object> dbProps = new HashMap<>();
+        HashMap<String, Object> cmdlineProps = new HashMap<>();
         String[] dbParams = new String[]{
                 "db.host", "db.port", "db.name", "db.username", "db.password"
         };
         for (String paramName : dbParams) {
-            dbProps.put(paramName, servletContext.getInitParameter(paramName));
+            cmdlineProps.put(paramName, servletContext.getInitParameter(paramName));
         }
-        MapPropertySource dbPropSrc = new MapPropertySource("dbProps", dbProps);
+        cmdlineProps.put("app.isDebug", Boolean.valueOf(servletContext.getInitParameter("app.isDebug")));
+
+        MapPropertySource cmdlinePropSrc = new MapPropertySource("cmdlineProps", cmdlineProps);
 
         AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
-        rootContext.getEnvironment().getPropertySources().addFirst(dbPropSrc);
+        rootContext.getEnvironment().getPropertySources().addFirst(cmdlinePropSrc);
         rootContext.register(AppInitializer.class);
 
         servletContext.addListener(new ContextLoaderListener(rootContext));

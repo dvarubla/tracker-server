@@ -33,6 +33,9 @@ public class Application {
     public static void main(String[] args) throws Exception {
         Options options = new Options();
 
+        Option debugOption = new Option(null, "debug", false, "for non-production use");
+        options.addOption(debugOption);
+
         Option portOption = new Option(null, "port", true, "port number");
         portOption.setRequired(true);
         portOption.setType(Number.class);
@@ -55,6 +58,7 @@ public class Application {
         }
 
         String[] dbArgs = cmd.getOptionValues("db");
+        boolean isDebug = cmd.hasOption("debug");
 
         String webAppDirLocation = ".";
         NoJSPTomcat tomcat = new NoJSPTomcat();
@@ -69,6 +73,7 @@ public class Application {
         ctx.addParameter("db.name", dbArgs[2]);
         ctx.addParameter("db.username", dbArgs[3]);
         ctx.addParameter("db.password", dbArgs[4]);
+        ctx.addParameter("app.isDebug", String.valueOf(isDebug));
         tomcat.start();
         tomcat.getServer().await();
     }

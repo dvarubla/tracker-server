@@ -31,6 +31,15 @@ public class AppUser {
     @JoinColumn(name = "roleId")
     private Role role;
 
+    public AppUser(String login, String password, String name, Role role) {
+        this.login = login;
+        this.password = password;
+        this.name = name;
+        this.role = role;
+    }
+
+    public AppUser() {
+    }
 
     public int getId() {
         return id;
