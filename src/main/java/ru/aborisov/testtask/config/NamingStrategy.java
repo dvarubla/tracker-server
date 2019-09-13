@@ -57,9 +57,7 @@ public class NamingStrategy implements PhysicalNamingStrategy {
             if (part == null || part.trim().isEmpty()) {
                 continue;
             }
-            if (!part.equalsIgnoreCase("Impl")) {
-                result.add(part.toLowerCase());
-            }
+            result.add(part.toLowerCase());
         }
         return result;
     }

@@ -38,7 +38,7 @@ public class JPAConfig {
         LocalContainerEntityManagerFactoryBean em
                 = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(dataSource());
-        em.setPackagesToScan("ru.aborisov.testtask.impl.dao");
+        em.setPackagesToScan("ru.aborisov.testtask.dao");
 
         JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         em.setJpaVendorAdapter(vendorAdapter);
@@ -70,6 +70,7 @@ public class JPAConfig {
         Properties properties = new Properties();
         properties.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQL95Dialect");
         properties.setProperty("hibernate.physical_naming_strategy", "ru.aborisov.testtask.config.NamingStrategy");
+        properties.setProperty("hibernate.hbm2ddl.auto", "validate");
 
         return properties;
     }
