@@ -34,6 +34,14 @@ public class Role {
     public Role() {
     }
 
+    public Role(String name, String alias, Set<AppUser> users, Set<Privilege> privileges, int id) {
+        this.name = name;
+        this.alias = alias;
+        this.users = users;
+        this.privileges = privileges;
+        this.id = id;
+    }
+
     public Role(String name, String alias, Set<AppUser> users, Set<Privilege> privileges) {
         this.name = name;
         this.alias = alias;

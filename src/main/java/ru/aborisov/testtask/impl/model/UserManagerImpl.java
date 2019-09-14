@@ -6,22 +6,28 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.aborisov.testtask.dao.AppUser;
 import ru.aborisov.testtask.dao.RoleRepository;
-import ru.aborisov.testtask.dao.UserRepository;
+import ru.aborisov.testtask.dao.UserRepositoryAdapter;
 import ru.aborisov.testtask.exception.UserAlreadyExistsException;
 import ru.aborisov.testtask.exception.UserNotFoundException;
 import ru.aborisov.testtask.model.UserManager;
 import ru.aborisov.testtask.resource.Login;
+import ru.aborisov.testtask.resource.OutputList;
+import ru.aborisov.testtask.resource.RoleNameId;
+import ru.aborisov.testtask.resource.SearchQuery;
 import ru.aborisov.testtask.resource.User;
+import ru.aborisov.testtask.resource.UserPublicData;
+
+import java.util.stream.Collectors;
 
 @Component
 public class UserManagerImpl implements UserManager {
-    private UserRepository userRepository;
+    private UserRepositoryAdapter userRepository;
     private RoleRepository roleRepository;
     private PasswordEncoder encoder;
 
     @Autowired
     public UserManagerImpl(
-            UserRepository userRepository,
+            UserRepositoryAdapter userRepository,
             RoleRepository roleRepository,
             PasswordEncoder encoder
     ) {
@@ -52,5 +58,18 @@ public class UserManagerImpl implements UserManager {
             throw new UserNotFoundException(login.getLogin());
         }
         userRepository.deleteById(user.getId());
+    }
+
+    @Override
+    public OutputList<UserPublicData> findPublicUserData(SearchQuery query) {
+        return new OutputList<>(userRepository
+                .searchByAllFields(query).stream()
+                .map(user ->
+                        new UserPublicData(
+                                user.getLogin(), user.getName(), user.getId(),
+                                new RoleNameId(user.getRole().getName(), user.getRole().getId())
+                        )
+                )
+                .collect(Collectors.toList()));
     }
 }
