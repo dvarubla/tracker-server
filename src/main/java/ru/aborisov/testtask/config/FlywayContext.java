@@ -23,7 +23,7 @@ public class FlywayContext {
     private void doAction() {
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
-        flyway.setLocations("db/migration");
+        flyway.setLocations("db/migration", "classpath:ru.aborisov.testtask.db.migration");
         if (isDebug) {
             flyway.clean();
         }
