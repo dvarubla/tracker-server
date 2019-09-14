@@ -9,18 +9,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.aborisov.testtask.exception.AppSecurityException;
 import ru.aborisov.testtask.exception.UserAlreadyExistsException;
 import ru.aborisov.testtask.exception.UserNotFoundException;
+import ru.aborisov.testtask.exception.ValidationException;
 
 @RestControllerAdvice
 public class ErrorHandler {
-    @ExceptionHandler(UserAlreadyExistsException.class)
+    @ExceptionHandler({UserNotFoundException.class, UserAlreadyExistsException.class, ValidationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public UserAlreadyExistsException handleUserAlreadyExists(UserAlreadyExistsException ex) {
-        return ex;
-    }
-
-    @ExceptionHandler(UserNotFoundException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public UserNotFoundException handleUserNotFound(UserNotFoundException ex) {
+    public Exception handleBadRequestException(Exception ex) {
         return ex;
     }
 
@@ -28,5 +23,11 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public Exception handleSecurityException() {
         return new AppSecurityException("Ошибка авторизации");
+    }
+
+    @ExceptionHandler(value = {AppSecurityException.class})
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public Exception handleSecurityException(Exception ex) {
+        return ex;
     }
 }

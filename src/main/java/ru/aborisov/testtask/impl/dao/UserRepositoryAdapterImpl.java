@@ -10,6 +10,7 @@ import ru.aborisov.testtask.dao.UserRepositoryAdapter;
 import ru.aborisov.testtask.resource.SearchQuery;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class UserRepositoryAdapterImpl implements UserRepositoryAdapter {
@@ -45,5 +46,10 @@ public class UserRepositoryAdapterImpl implements UserRepositoryAdapter {
     @Override
     public void deleteById(int id) {
         userRepository.deleteById(id);
+    }
+
+    @Override
+    public Optional<AppUser> findById(int id) {
+        return userRepository.findById(id);
     }
 }

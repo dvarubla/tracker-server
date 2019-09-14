@@ -1,5 +1,7 @@
 package ru.aborisov.testtask.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +24,11 @@ import java.util.HashMap;
 @EnableWebMvc
 @ComponentScan("ru.aborisov.testtask")
 public class AppInitializer extends AbstractSecurityWebApplicationInitializer {
+
+    @Bean
+    public ObjectMapper myObjectMapper() {
+        return new ObjectMapper().registerModule(new Jdk8Module());
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {

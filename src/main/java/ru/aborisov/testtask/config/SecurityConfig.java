@@ -41,6 +41,7 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.DELETE, "/api/user").hasAuthority(PrivilegeAlias.MANAGE_USERS.getAlias())
                 .antMatchers(HttpMethod.GET, "/api/users").hasAuthority(PrivilegeAlias.MANAGE_USERS.getAlias())
                 .antMatchers(HttpMethod.POST, "/api/user").hasAuthority(PrivilegeAlias.CREATE_USER.getAlias())
+                .antMatchers(HttpMethod.POST, "/api/allusers").hasAuthority(PrivilegeAlias.MANAGE_USERS.getAlias())
                 .and().httpBasic().authenticationEntryPoint(entryPoint)
         ;
 
