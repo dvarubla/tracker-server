@@ -8,16 +8,20 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 
-import javax.servlet.http.HttpServletResponse;
-
 @Configuration
 @EnableWebSecurity
 class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final AnonAuthoritiesObtainer anonAuthoritiesObtainer;
 
+    private final AuthExceptionProcessor entryPoint;
+
     @Autowired
-    public SecurityConfig(AnonAuthoritiesObtainer anonAuthoritiesObtainer) {
+    public SecurityConfig(
+            AnonAuthoritiesObtainer anonAuthoritiesObtainer,
+            AuthExceptionProcessor entryPoint
+    ) {
         this.anonAuthoritiesObtainer = anonAuthoritiesObtainer;
+        this.entryPoint = entryPoint;
     }
 
     @Override
@@ -25,8 +29,8 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .exceptionHandling()
-                .authenticationEntryPoint(
-                        (request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED))
+                .accessDeniedHandler(entryPoint)
+                .authenticationEntryPoint(entryPoint)
                 .and()
                 .anonymous().principal(RoleAlias.NOBODY).authorities(anonAuthoritiesObtainer.getAuthorities())
                 .and()
@@ -37,7 +41,7 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.DELETE, "/api/user").hasAuthority(PrivilegeAlias.MANAGE_USERS.getAlias())
                 .antMatchers(HttpMethod.GET, "/api/users").hasAuthority(PrivilegeAlias.MANAGE_USERS.getAlias())
                 .antMatchers(HttpMethod.POST, "/api/user").hasAuthority(PrivilegeAlias.CREATE_USER.getAlias())
-                .and().httpBasic()
+                .and().httpBasic().authenticationEntryPoint(entryPoint)
         ;
 
     }
