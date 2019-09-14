@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.WebApplicationInitializer;
+import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
@@ -21,7 +21,7 @@ import java.util.HashMap;
 @Configuration
 @EnableWebMvc
 @ComponentScan("ru.aborisov.testtask")
-public class AppInitializer implements WebApplicationInitializer {
+public class AppInitializer extends AbstractSecurityWebApplicationInitializer {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -29,7 +29,7 @@ public class AppInitializer implements WebApplicationInitializer {
     }
 
     @Override
-    public void onStartup(ServletContext servletContext) {
+    public void beforeSpringSecurityFilterChain(ServletContext servletContext) {
         /*получение аргументов командной строки*/
         HashMap<String, Object> cmdlineProps = new HashMap<>();
         String[] dbParams = new String[]{
