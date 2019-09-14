@@ -8,7 +8,9 @@ import ru.aborisov.testtask.dao.AppUser;
 import ru.aborisov.testtask.dao.RoleRepository;
 import ru.aborisov.testtask.dao.UserRepository;
 import ru.aborisov.testtask.exception.UserAlreadyExistsException;
+import ru.aborisov.testtask.exception.UserNotFoundException;
 import ru.aborisov.testtask.model.UserManager;
+import ru.aborisov.testtask.resource.Login;
 import ru.aborisov.testtask.resource.User;
 
 @Component
@@ -40,5 +42,15 @@ public class UserManagerImpl implements UserManager {
         appUser.setRole(roleRepository.findByAlias(roleAlias));
         appUser.setName(userData.getName());
         userRepository.save(appUser);
+    }
+
+    @Override
+    @Transactional
+    public void deleteUser(Login login) throws UserNotFoundException {
+        AppUser user = userRepository.findByLogin(login.getLogin());
+        if (user == null) {
+            throw new UserNotFoundException(login.getLogin());
+        }
+        userRepository.deleteById(user.getId());
     }
 }
