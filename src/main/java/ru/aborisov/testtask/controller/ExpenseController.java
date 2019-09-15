@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -57,6 +58,16 @@ public class ExpenseController {
             throws AppSecurityException, ExpenseNotFoundException, ValidationException {
         manager.updateExpense(data, getLogin(authentication), getCanManageOther(authentication));
         return new ResponseStatusBody("Запись изменена");
+    }
+
+    @DeleteMapping(
+            path = "/expense"
+    )
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseStatusBody deleteUser(@RequestBody Id id, Authentication authentication)
+            throws ExpenseNotFoundException, AppSecurityException {
+        manager.deleteExpense(id, getLogin(authentication), getCanManageOther(authentication));
+        return new ResponseStatusBody("Запись удалёна");
     }
 
 

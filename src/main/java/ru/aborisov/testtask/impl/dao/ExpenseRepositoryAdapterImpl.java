@@ -44,4 +44,9 @@ public class ExpenseRepositoryAdapterImpl implements ExpenseRepositoryAdapter {
                 query.getQuery(), login, PageRequest.of(query.getPage(), query.getCount(), Sort.by("recordDate").ascending())
         );
     }
+
+    @Override
+    public void deleteById(int id) {
+        expenseRepository.deleteById(id);
+    }
 }

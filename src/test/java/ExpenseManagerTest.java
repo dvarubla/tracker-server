@@ -14,6 +14,7 @@ import ru.aborisov.testtask.model.ExpenseManager;
 import ru.aborisov.testtask.resource.ExpenseCreateData;
 import ru.aborisov.testtask.resource.ExpenseData;
 import ru.aborisov.testtask.resource.ExpenseUpdateData;
+import ru.aborisov.testtask.resource.Id;
 import ru.aborisov.testtask.resource.OutputList;
 import ru.aborisov.testtask.resource.SearchQuery;
 import ru.aborisov.testtask.resource.UserNameId;
@@ -216,5 +217,23 @@ class ExpenseManagerTest {
         );
         assertThrows(AppSecurityException.class, () -> manager.updateExpense(updateData, "root23", false));
         verify(expenseRepository, never()).save(any());
+    }
+
+    @Test
+    void deleteExpense() throws ExpenseNotFoundException, AppSecurityException {
+        OffsetDateTime curDate = OffsetDateTime.now();
+        AppUser rootUser = new AppUser(111, "root", "12345", "root name", new Role());
+        when(userRepository.findById(111)).thenReturn(Optional.of(rootUser));
+        when(userRepository.findByLogin("root")).thenReturn(Optional.of(rootUser));
+        when(expenseRepository.findById(567)).thenReturn(
+                Optional.of(
+                        new ExpenseRecord(
+                                1, curDate, BigDecimal.valueOf(1), "123", "456",
+                                rootUser
+                        )
+                )
+        );
+        manager.deleteExpense(new Id(567), "root", true);
+        verify(expenseRepository).deleteById(567);
     }
 }

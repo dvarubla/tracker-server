@@ -14,6 +14,7 @@ import ru.aborisov.testtask.model.ExpenseManager;
 import ru.aborisov.testtask.resource.ExpenseCreateData;
 import ru.aborisov.testtask.resource.ExpenseData;
 import ru.aborisov.testtask.resource.ExpenseUpdateData;
+import ru.aborisov.testtask.resource.Id;
 import ru.aborisov.testtask.resource.OutputList;
 import ru.aborisov.testtask.resource.SearchQuery;
 import ru.aborisov.testtask.resource.UserNameId;
@@ -117,5 +118,16 @@ public class ExpenseManagerImpl implements ExpenseManager {
                         )
                 )
                 .collect(Collectors.toList()));
+    }
+
+    @Override
+    public void deleteExpense(Id id, String login, boolean canManageOther) throws AppSecurityException, ExpenseNotFoundException {
+        Optional<ExpenseRecord> expenseRecordOpt = expenseRepository.findById(id.getId());
+        if (!expenseRecordOpt.isPresent()) {
+            throw new ExpenseNotFoundException(id.getId());
+        }
+        @SuppressWarnings("OptionalGetWithoutIsPresent") AppUser currentUser = userRepository.findByLogin(login).get();
+        checkManageOther(canManageOther, expenseRecordOpt.get().getId(), currentUser);
+        expenseRepository.deleteById(id.getId());
     }
 }

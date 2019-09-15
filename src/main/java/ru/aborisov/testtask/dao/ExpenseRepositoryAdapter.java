@@ -8,6 +8,7 @@ import java.util.Optional;
 public interface ExpenseRepositoryAdapter {
     void save(ExpenseRecord record);
     Optional<ExpenseRecord> findById(int id);
+    void deleteById(int id);
     List<ExpenseRecord> searchByAllFields(SearchQuery query);
     List<ExpenseRecord> searchByAllFields(SearchQuery query, String login);
 }
