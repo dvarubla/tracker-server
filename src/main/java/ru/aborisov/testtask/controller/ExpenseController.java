@@ -41,7 +41,7 @@ public class ExpenseController {
             path = "/expenses"
     )
     @ResponseStatus(HttpStatus.OK)
-    public OutputList<ExpenseData> searchUsers(SearchQuery query, Authentication authentication) {
+    public OutputList<ExpenseData> searchExpenses(SearchQuery query, Authentication authentication) {
         return manager.findExpenseData(query, getLogin(authentication), getCanManageOther(authentication));
     }
 
