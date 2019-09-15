@@ -25,6 +25,7 @@ import ru.aborisov.testtask.resource.UserDataPrivilegies;
 import ru.aborisov.testtask.resource.UserPublicData;
 import ru.aborisov.testtask.resource.UserUpdateData;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -156,5 +157,23 @@ public class UserManagerImpl implements UserManager {
         user.setRole(role);
         userRepository.save(user);
         return user.getId();
+    }
+
+    @Override
+    @Transactional
+    public OutputList<RoleNameId> getManageableRoles(boolean canManageAdmins) {
+        List<Role> roles = roleRepository.findAll();
+        return new OutputList<>(
+                roles.stream()
+                        .filter(
+                                role -> (
+                                    canManageAdmins ||
+                                    !role.getAlias().equals(RoleAlias.ADMIN.getAlias())
+                                )
+                                && !role.getAlias().equals(RoleAlias.NOBODY.getAlias())
+                        )
+                        .map(role -> new RoleNameId(role.getName(), role.getId())
+                ).collect(Collectors.toList())
+        );
     }
 }

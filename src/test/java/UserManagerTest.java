@@ -28,6 +28,7 @@ import ru.aborisov.testtask.resource.UserPublicData;
 import ru.aborisov.testtask.resource.UserUpdateData;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -229,5 +230,73 @@ class UserManagerTest {
                 new UserPublicData("root", "Root Name", 789, new RoleNameId("1", 6)),
                 Arrays.asList(new PrivilegeData("al1", "pr1"), new PrivilegeData("al2", "pr2"))
         ));
+    }
+
+    @Test
+    void findAllRoles() {
+        when(roleRepository.findAll()).thenReturn(Arrays.asList(
+                new Role(
+                        "1",
+                        "user",
+                        new HashSet<>(),
+                        new HashSet<>(),
+                        6
+                ),
+                new Role(
+                        "2",
+                        "nobody",
+                        new HashSet<>(),
+                        new HashSet<>(),
+                        7
+                ),
+                new Role(
+                        "3",
+                        "admin",
+                        new HashSet<>(),
+                        new HashSet<>(),
+                        8
+                )
+        ));
+
+        assertEquals(
+                userManager.getManageableRoles(true),
+                new OutputList<>(
+                        Arrays.asList(new RoleNameId("1", 6), new RoleNameId("3", 8))
+                )
+        );
+    }
+
+    @Test
+    void findNonAdminRoles() {
+        when(roleRepository.findAll()).thenReturn(Arrays.asList(
+                new Role(
+                        "1",
+                        "user",
+                        new HashSet<>(),
+                        new HashSet<>(),
+                        6
+                ),
+                new Role(
+                        "2",
+                        "nobody",
+                        new HashSet<>(),
+                        new HashSet<>(),
+                        7
+                ),
+                new Role(
+                        "3",
+                        "admin",
+                        new HashSet<>(),
+                        new HashSet<>(),
+                        8
+                )
+        ));
+
+        assertEquals(
+                userManager.getManageableRoles(false),
+                new OutputList<>(
+                        Collections.singletonList(new RoleNameId("1", 6))
+                )
+        );
     }
 }

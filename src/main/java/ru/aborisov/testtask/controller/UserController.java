@@ -21,6 +21,7 @@ import ru.aborisov.testtask.model.UserManager;
 import ru.aborisov.testtask.resource.Id;
 import ru.aborisov.testtask.resource.OutputList;
 import ru.aborisov.testtask.resource.ResponseStatusBody;
+import ru.aborisov.testtask.resource.RoleNameId;
 import ru.aborisov.testtask.resource.SearchQuery;
 import ru.aborisov.testtask.resource.User;
 import ru.aborisov.testtask.resource.UserCreateData;
@@ -101,5 +102,13 @@ public class UserController {
         return details.getAuthorities().contains(
                 new SimpleGrantedAuthority(PrivilegeAlias.MANAGE_ADMINS.getAlias())
         );
+    }
+
+    @GetMapping(
+            path = "/roles"
+    )
+    @ResponseStatus(HttpStatus.OK)
+    public OutputList<RoleNameId> getManageableRoles(Authentication authentication) {
+        return userManager.getManageableRoles(getCanManageAdmins(authentication));
     }
 }
