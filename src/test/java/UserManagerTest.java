@@ -15,7 +15,7 @@ import ru.aborisov.testtask.exception.ValidationException;
 import ru.aborisov.testtask.impl.model.UserManagerImpl;
 import ru.aborisov.testtask.model.UserManager;
 import ru.aborisov.testtask.resource.Credentials;
-import ru.aborisov.testtask.resource.Login;
+import ru.aborisov.testtask.resource.Id;
 import ru.aborisov.testtask.resource.OutputList;
 import ru.aborisov.testtask.resource.RoleNameId;
 import ru.aborisov.testtask.resource.SearchQuery;
@@ -82,25 +82,37 @@ class UserManagerTest {
 
     @Test
     void throwExceptionWhenUserNotFoundWhenDeleting() {
-        when(userRepository.existsByLogin(eq("root"))).thenReturn(false);
+        when(userRepository.existsById(eq(6))).thenReturn(false);
         assertThrows(UserNotFoundException.class,
                 () ->
-                        userManager.deleteUser(new Login("root"))
+                        userManager.deleteUser(new Id(6), true)
         );
     }
 
     @Test
-    void deleteUser() throws UserNotFoundException {
+    void deleteUser() throws UserNotFoundException, AppSecurityException {
         when(userRepository.existsByLogin(eq("root"))).thenReturn(true);
         AppUser user = new AppUser(
                 789, "root", "54321", "Root Name",
-                new Role("1", "2", new HashSet<>(), new HashSet<>())
+                new Role("1", "user", new HashSet<>(), new HashSet<>())
         );
-        when(userRepository.findByLogin(eq("root"))).thenReturn(user);
+        when(userRepository.findById(eq(789))).thenReturn(Optional.of(user));
 
-        userManager.deleteUser(new Login("root"));
+        userManager.deleteUser(new Id(789), false);
 
         verify(userRepository, times(1)).deleteById(789);
+    }
+
+    @Test
+    void deleteAdminByManagerFail() {
+        when(userRepository.existsByLogin(eq("root"))).thenReturn(true);
+        AppUser user = new AppUser(
+                789, "root", "54321", "Root Name",
+                new Role("1", "admin", new HashSet<>(), new HashSet<>())
+        );
+        when(userRepository.findById(eq(789))).thenReturn(Optional.of(user));
+
+        assertThrows(AppSecurityException.class, () -> userManager.deleteUser(new Id(789), false));
     }
 
     @Test

@@ -14,6 +14,7 @@ import ru.aborisov.testtask.dao.RoleRepository;
 import ru.aborisov.testtask.dao.UserRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -30,10 +31,11 @@ public class AppUserDetailsService implements UserDetailsService, AnonAuthoritie
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        AppUser user = userRepository.findByLogin(username);
-        if (user == null) {
+        Optional<AppUser> userOpt = userRepository.findByLogin(username);
+        if (!userOpt.isPresent()) {
             throw new UsernameNotFoundException("Пользователь не найден");
         }
+        AppUser user = userOpt.get();
         return new User(user.getName(), user.getPassword(), user.getRole().getPrivileges().stream().map(
                 privilege -> new SimpleGrantedAuthority(privilege.getAlias())
         ).collect(Collectors.toList()));

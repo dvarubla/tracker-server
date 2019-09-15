@@ -10,17 +10,17 @@ public class UserNotFoundException extends Exception {
     public UserNotFoundException() {
     }
 
-    public UserNotFoundException(String login) {
-        super(login);
+    public UserNotFoundException(int id) {
+        super(String.valueOf(id));
     }
 
-    public UserNotFoundException(String login, Throwable cause) {
-        super(login, cause);
+    public UserNotFoundException(int id, Throwable cause) {
+        super(String.valueOf(id), cause);
     }
 
     @JsonProperty
     @Override
     public String getMessage() {
-        return "Пользователь с логином " + super.getMessage() + " не существует";
+        return "Пользователь с id " + super.getMessage() + " не существует";
     }
 }

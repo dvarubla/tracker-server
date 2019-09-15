@@ -7,7 +7,8 @@ import java.util.Optional;
 
 public interface UserRepositoryAdapter {
     boolean existsByLogin(String login);
-    AppUser findByLogin(String login);
+    Optional<AppUser> findByLogin(String login);
+    boolean existsById(int id);
     List<AppUser> searchByAllFields(SearchQuery query);
 
     void save(AppUser user);

@@ -14,7 +14,7 @@ import ru.aborisov.testtask.exception.UserAlreadyExistsException;
 import ru.aborisov.testtask.exception.UserNotFoundException;
 import ru.aborisov.testtask.exception.ValidationException;
 import ru.aborisov.testtask.model.UserManager;
-import ru.aborisov.testtask.resource.Login;
+import ru.aborisov.testtask.resource.Id;
 import ru.aborisov.testtask.resource.OutputList;
 import ru.aborisov.testtask.resource.RoleNameId;
 import ru.aborisov.testtask.resource.SearchQuery;
@@ -65,12 +65,21 @@ public class UserManagerImpl implements UserManager {
 
     @Override
     @Transactional
-    public void deleteUser(Login login) throws UserNotFoundException {
-        AppUser user = userRepository.findByLogin(login.getLogin());
-        if (user == null) {
-            throw new UserNotFoundException(login.getLogin());
+    public void deleteUser(Id id, boolean canManageAdmins) throws UserNotFoundException, AppSecurityException {
+        if (canManageAdmins) {
+            if (!userRepository.existsById(id.getId())) {
+                throw new UserNotFoundException(id.getId());
+            }
+        } else {
+            Optional<AppUser> user = userRepository.findById(id.getId());
+            if (!user.isPresent()) {
+                throw new UserNotFoundException(id.getId());
+            }
+            if (user.get().getRole().getAlias().equals(RoleAlias.ADMIN.getAlias())) {
+                throw new AppSecurityException("Вы не можете управлять администраторами");
+            }
         }
-        userRepository.deleteById(user.getId());
+        userRepository.deleteById(id.getId());
     }
 
     @Override

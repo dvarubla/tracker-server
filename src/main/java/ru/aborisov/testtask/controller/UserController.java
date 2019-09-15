@@ -18,7 +18,7 @@ import ru.aborisov.testtask.exception.UserAlreadyExistsException;
 import ru.aborisov.testtask.exception.UserNotFoundException;
 import ru.aborisov.testtask.exception.ValidationException;
 import ru.aborisov.testtask.model.UserManager;
-import ru.aborisov.testtask.resource.Login;
+import ru.aborisov.testtask.resource.Id;
 import ru.aborisov.testtask.resource.OutputList;
 import ru.aborisov.testtask.resource.ResponseStatusBody;
 import ru.aborisov.testtask.resource.SearchQuery;
@@ -50,8 +50,10 @@ public class UserController {
             path = "/user"
     )
     @ResponseStatus(HttpStatus.OK)
-    public ResponseStatusBody deleteUser(@RequestBody Login login) throws UserNotFoundException {
-        userManager.deleteUser(login);
+    public ResponseStatusBody deleteUser(@RequestBody Id id, Authentication authentication)
+            throws UserNotFoundException, AppSecurityException {
+        boolean canManageAdmins = getCanManageAdmins(authentication);
+        userManager.deleteUser(id, canManageAdmins);
         return new ResponseStatusBody("Пользователь был удалён");
     }
 
@@ -66,16 +68,20 @@ public class UserController {
     @PostMapping(
             path = "/allusers"
     )
-    public ResponseEntity<ResponseStatusBody> createOrUpdateUser(@RequestBody UserUpdateData data, Authentication authenication)
+    public ResponseEntity<ResponseStatusBody> createOrUpdateUser(@RequestBody UserUpdateData data, Authentication authentication)
             throws AppSecurityException, UserAlreadyExistsException, ValidationException {
-        UserDetails details = (UserDetails) authenication.getPrincipal();
-        boolean canManageAdmins = details.getAuthorities().contains(
-                new SimpleGrantedAuthority(PrivilegeAlias.MANAGE_ADMINS.getAlias())
-        );
+        boolean canManageAdmins = getCanManageAdmins(authentication);
         boolean isNew = userManager.createOrUpdateUser(data, canManageAdmins);
         return new ResponseEntity<>(
                 new ResponseStatusBody(isNew ? "Пользователь создан" : "Пользователь изменён"),
                 isNew ? HttpStatus.CREATED : HttpStatus.OK
+        );
+    }
+
+    private boolean getCanManageAdmins(Authentication authentication) {
+        UserDetails details = (UserDetails) authentication.getPrincipal();
+        return details.getAuthorities().contains(
+                new SimpleGrantedAuthority(PrivilegeAlias.MANAGE_ADMINS.getAlias())
         );
     }
 }

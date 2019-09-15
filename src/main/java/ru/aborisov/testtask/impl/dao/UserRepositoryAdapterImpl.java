@@ -27,7 +27,7 @@ public class UserRepositoryAdapterImpl implements UserRepositoryAdapter {
     }
 
     @Override
-    public AppUser findByLogin(String login) {
+    public Optional<AppUser> findByLogin(String login) {
         return userRepository.findByLogin(login);
     }
 
@@ -51,5 +51,10 @@ public class UserRepositoryAdapterImpl implements UserRepositoryAdapter {
     @Override
     public Optional<AppUser> findById(int id) {
         return userRepository.findById(id);
+    }
+
+    @Override
+    public boolean existsById(int id) {
+        return userRepository.existsById(id);
     }
 }
