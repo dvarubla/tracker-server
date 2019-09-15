@@ -11,8 +11,14 @@ import ru.aborisov.testtask.exception.AppSecurityException;
 import ru.aborisov.testtask.exception.ValidationException;
 import ru.aborisov.testtask.model.ExpenseManager;
 import ru.aborisov.testtask.resource.ExpenseCreateData;
+import ru.aborisov.testtask.resource.ExpenseData;
+import ru.aborisov.testtask.resource.OutputList;
+import ru.aborisov.testtask.resource.SearchQuery;
+import ru.aborisov.testtask.resource.UserNameId;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 public class ExpenseManagerImpl implements ExpenseManager {
@@ -53,5 +59,24 @@ public class ExpenseManagerImpl implements ExpenseManager {
         expenseRecord.setDescription(expenseCreateData.getDescription());
         expenseRepository.save(expenseRecord);
         return expenseRecord.getId();
+    }
+
+    @Override
+    @Transactional
+    public OutputList<ExpenseData> findExpenseData(SearchQuery query, String login, boolean canManageOther) {
+        List<ExpenseRecord> expenseList;
+        if (canManageOther) {
+            expenseList = expenseRepository.searchByAllFields(query);
+        } else {
+            expenseList = expenseRepository.searchByAllFields(query, login);
+        }
+        return new OutputList<>(expenseList.stream()
+                .map(exp ->
+                        new ExpenseData(
+                                exp.getId(), exp.getRecordDate(), exp.getCost(), exp.getDescription(), exp.getComment(),
+                                new UserNameId(exp.getAppUser().getName(), exp.getAppUser().getId())
+                        )
+                )
+                .collect(Collectors.toList()));
     }
 }

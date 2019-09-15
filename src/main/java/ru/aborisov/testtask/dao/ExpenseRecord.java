@@ -90,6 +90,15 @@ public class ExpenseRecord {
         this.appUser = appUser;
     }
 
+    public ExpenseRecord(int id, OffsetDateTime recordDate, BigDecimal cost, String description, String comment, AppUser appUser) {
+        this.recordDate = recordDate;
+        this.cost = cost;
+        this.description = description;
+        this.comment = comment;
+        this.appUser = appUser;
+        this.id = id;
+    }
+
     public ExpenseRecord() {
     }
 

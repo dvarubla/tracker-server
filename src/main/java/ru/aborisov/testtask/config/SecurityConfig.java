@@ -45,6 +45,8 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.PUT, "/api/allusers").hasAuthority(PrivilegeAlias.MANAGE_USERS.getAlias())
                 .antMatchers(HttpMethod.POST, "/api/expenses")
                     .hasAnyAuthority(PrivilegeAlias.MANAGE_OWN_RECORDS.getAlias(), PrivilegeAlias.MANAGE_OTHER_RECORDS.getAlias())
+                .antMatchers(HttpMethod.GET, "/api/expenses")
+                .hasAnyAuthority(PrivilegeAlias.MANAGE_OWN_RECORDS.getAlias(), PrivilegeAlias.MANAGE_OTHER_RECORDS.getAlias())
                 .and().httpBasic().authenticationEntryPoint(entryPoint)
         ;
 

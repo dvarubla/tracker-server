@@ -11,11 +11,19 @@ import ru.aborisov.testtask.exception.ValidationException;
 import ru.aborisov.testtask.impl.model.ExpenseManagerImpl;
 import ru.aborisov.testtask.model.ExpenseManager;
 import ru.aborisov.testtask.resource.ExpenseCreateData;
+import ru.aborisov.testtask.resource.ExpenseData;
+import ru.aborisov.testtask.resource.OutputList;
+import ru.aborisov.testtask.resource.SearchQuery;
+import ru.aborisov.testtask.resource.UserNameId;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -92,5 +100,71 @@ class ExpenseManagerTest {
         when(userRepository.findById(6)).thenReturn(Optional.empty());
         assertThrows(ValidationException.class, () -> manager.createExpense(createData, "root", true));
         verify(expenseRepository, never()).save(any());
+    }
+
+    @Test
+    void searchForExpensesCurrentUser() {
+        OffsetDateTime curDate = OffsetDateTime.now();
+        AppUser testUser = new AppUser(
+                789, "root", "54321", "Root Name",
+                new Role("3", "8", new HashSet<>(), new HashSet<>(), 56)
+        );
+        List<ExpenseRecord> expenseRecords = Arrays.asList(
+                new ExpenseRecord(
+                        1, curDate, BigDecimal.valueOf(1), "123", "456",
+                        testUser
+                ),
+                new ExpenseRecord(
+                        2, curDate, BigDecimal.valueOf(5), "125", "897",
+                        testUser
+                )
+        );
+        List<ExpenseData> expenseDatas = Arrays.asList(
+                new ExpenseData(
+                        1, curDate, BigDecimal.valueOf(1), "123", "456",
+                        new UserNameId("Root Name", 789)
+                ),
+                new ExpenseData(
+                        2, curDate, BigDecimal.valueOf(5), "125", "897",
+                        new UserNameId("Root Name", 789)
+                )
+        );
+        SearchQuery query = new SearchQuery(1, 2, "123");
+        when(expenseRepository.searchByAllFields(eq(query))).thenReturn(expenseRecords);
+
+        assertEquals(manager.findExpenseData(query, "root", true), new OutputList<>(expenseDatas));
+    }
+
+    @Test
+    void searchForExpensesOtherUser() {
+        OffsetDateTime curDate = OffsetDateTime.now();
+        AppUser testUser = new AppUser(
+                789, "root", "54321", "Root Name",
+                new Role("3", "8", new HashSet<>(), new HashSet<>(), 56)
+        );
+        List<ExpenseRecord> expenseRecords = Arrays.asList(
+                new ExpenseRecord(
+                        1, curDate, BigDecimal.valueOf(1), "123", "456",
+                        testUser
+                ),
+                new ExpenseRecord(
+                        2, curDate, BigDecimal.valueOf(5), "125", "897",
+                        testUser
+                )
+        );
+        List<ExpenseData> expenseDatas = Arrays.asList(
+                new ExpenseData(
+                        1, curDate, BigDecimal.valueOf(1), "123", "456",
+                        new UserNameId("Root Name", 789)
+                ),
+                new ExpenseData(
+                        2, curDate, BigDecimal.valueOf(5), "125", "897",
+                        new UserNameId("Root Name", 789)
+                )
+        );
+        SearchQuery query = new SearchQuery(1, 2, "123");
+        when(expenseRepository.searchByAllFields(eq(query), eq("root"))).thenReturn(expenseRecords);
+
+        assertEquals(manager.findExpenseData(query, "root", false), new OutputList<>(expenseDatas));
     }
 }
