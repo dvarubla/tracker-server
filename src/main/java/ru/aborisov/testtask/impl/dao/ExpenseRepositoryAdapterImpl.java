@@ -10,6 +10,7 @@ import ru.aborisov.testtask.dao.ExpenseRepositoryAdapter;
 import ru.aborisov.testtask.resource.SearchQuery;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class ExpenseRepositoryAdapterImpl implements ExpenseRepositoryAdapter {
@@ -23,6 +24,11 @@ public class ExpenseRepositoryAdapterImpl implements ExpenseRepositoryAdapter {
     @Override
     public void save(ExpenseRecord record) {
         expenseRepository.save(record);
+    }
+
+    @Override
+    public Optional<ExpenseRecord> findById(int id) {
+        return expenseRepository.findById(id);
     }
 
     @Override

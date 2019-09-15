@@ -7,11 +7,13 @@ import ru.aborisov.testtask.dao.ExpenseRepositoryAdapter;
 import ru.aborisov.testtask.dao.Role;
 import ru.aborisov.testtask.dao.UserRepositoryAdapter;
 import ru.aborisov.testtask.exception.AppSecurityException;
+import ru.aborisov.testtask.exception.ExpenseNotFoundException;
 import ru.aborisov.testtask.exception.ValidationException;
 import ru.aborisov.testtask.impl.model.ExpenseManagerImpl;
 import ru.aborisov.testtask.model.ExpenseManager;
 import ru.aborisov.testtask.resource.ExpenseCreateData;
 import ru.aborisov.testtask.resource.ExpenseData;
+import ru.aborisov.testtask.resource.ExpenseUpdateData;
 import ru.aborisov.testtask.resource.OutputList;
 import ru.aborisov.testtask.resource.SearchQuery;
 import ru.aborisov.testtask.resource.UserNameId;
@@ -166,5 +168,53 @@ class ExpenseManagerTest {
         when(expenseRepository.searchByAllFields(eq(query), eq("root"))).thenReturn(expenseRecords);
 
         assertEquals(manager.findExpenseData(query, "root", false), new OutputList<>(expenseDatas));
+    }
+
+    @Test
+    void updateExpense() throws AppSecurityException, ExpenseNotFoundException, ValidationException {
+        OffsetDateTime curDate = OffsetDateTime.now();
+        ExpenseUpdateData updateData = new ExpenseUpdateData(
+                567, curDate, BigDecimal.valueOf(100.5), "123", "456", 111
+        );
+        AppUser rootUser = new AppUser(111, "root", "12345", "root name", new Role());
+        AppUser oldUser = new AppUser(31231, "root2", "12345", "root name3", new Role());
+        when(userRepository.findById(111)).thenReturn(Optional.of(rootUser));
+        when(userRepository.findByLogin("root")).thenReturn(Optional.of(rootUser));
+        when(expenseRepository.findById(567)).thenReturn(
+                Optional.of(
+                        new ExpenseRecord(
+                                567, curDate, BigDecimal.valueOf(120.5),
+                                "133123", "4563", oldUser
+                        )
+                )
+        );
+        ExpenseRecord resultRecord = new ExpenseRecord(
+                567, curDate, BigDecimal.valueOf(100.5), "123", "456", rootUser
+        );
+        manager.updateExpense(updateData, "root", false);
+        verify(expenseRepository).save(eq(resultRecord));
+    }
+
+    @Test
+    void updateExpenseFail() {
+        OffsetDateTime curDate = OffsetDateTime.now();
+        ExpenseUpdateData updateData = new ExpenseUpdateData(
+                567, curDate, BigDecimal.valueOf(100.5), "123", "456", 111
+        );
+        AppUser rootUser = new AppUser(111, "root", "12345", "root name", new Role());
+        AppUser oldUser = new AppUser(31231, "root2", "12345", "root name3", new Role());
+        AppUser curUser = new AppUser(3, "root23", "12345", "root name5", new Role());
+        when(userRepository.findById(111)).thenReturn(Optional.of(rootUser));
+        when(userRepository.findByLogin("root23")).thenReturn(Optional.of(curUser));
+        when(expenseRepository.findById(567)).thenReturn(
+                Optional.of(
+                        new ExpenseRecord(
+                                567, curDate, BigDecimal.valueOf(120.5),
+                                "133123", "4563", oldUser
+                        )
+                )
+        );
+        assertThrows(AppSecurityException.class, () -> manager.updateExpense(updateData, "root23", false));
+        verify(expenseRepository, never()).save(any());
     }
 }

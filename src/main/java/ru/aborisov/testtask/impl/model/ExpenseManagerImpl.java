@@ -8,10 +8,12 @@ import ru.aborisov.testtask.dao.ExpenseRecord;
 import ru.aborisov.testtask.dao.ExpenseRepositoryAdapter;
 import ru.aborisov.testtask.dao.UserRepositoryAdapter;
 import ru.aborisov.testtask.exception.AppSecurityException;
+import ru.aborisov.testtask.exception.ExpenseNotFoundException;
 import ru.aborisov.testtask.exception.ValidationException;
 import ru.aborisov.testtask.model.ExpenseManager;
 import ru.aborisov.testtask.resource.ExpenseCreateData;
 import ru.aborisov.testtask.resource.ExpenseData;
+import ru.aborisov.testtask.resource.ExpenseUpdateData;
 import ru.aborisov.testtask.resource.OutputList;
 import ru.aborisov.testtask.resource.SearchQuery;
 import ru.aborisov.testtask.resource.UserNameId;
@@ -33,24 +35,41 @@ public class ExpenseManagerImpl implements ExpenseManager {
         this.expenseRepository = expenseRepository;
     }
 
+    private AppUser checkIfUserExists(int id) throws ValidationException {
+        Optional<AppUser> userOpt = userRepository.findById(id);
+        if (!userOpt.isPresent()) {
+            throw new ValidationException("Указан несуществующий пользователь");
+        }
+        return userOpt.get();
+    }
+
+    private void checkManageOther(boolean canManageOther, int userId, AppUser currentUser)
+            throws AppSecurityException {
+        if (!canManageOther && userId != currentUser.getId()) {
+            throw new AppSecurityException("Вы не можете управлять чужими записями");
+        }
+    }
+
+    private AppUser checkAndGetExpenseUser(String login, boolean canManageOther, Optional<Integer> userId)
+            throws AppSecurityException, ValidationException {
+        @SuppressWarnings("OptionalGetWithoutIsPresent") AppUser currentUser = userRepository.findByLogin(login).get();
+        AppUser targetUser;
+        if (userId.isPresent()) {
+            targetUser = checkIfUserExists(userId.get());
+        } else {
+            targetUser = currentUser;
+        }
+        if (userId.isPresent()) {
+            checkManageOther(canManageOther, userId.get(), currentUser);
+        }
+        return targetUser;
+    }
+
     @Transactional
     @Override
     public int createExpense(ExpenseCreateData expenseCreateData, String login, boolean canManageOther)
             throws AppSecurityException, ValidationException {
-        @SuppressWarnings("OptionalGetWithoutIsPresent") AppUser currentUser = userRepository.findByLogin(login).get();
-        AppUser targetUser;
-        if (expenseCreateData.getUserId().isPresent()) {
-             Optional<AppUser> userOpt = userRepository.findById(expenseCreateData.getUserId().get());
-             if (!userOpt.isPresent()) {
-                 throw new ValidationException("Указан несуществующий пользователь");
-             }
-             targetUser = userOpt.get();
-        } else {
-            targetUser = currentUser;
-        }
-        if (!canManageOther && expenseCreateData.getUserId().isPresent() && expenseCreateData.getUserId().get() != currentUser.getId()) {
-            throw new AppSecurityException("Вы не можете управлять чужими записями");
-        }
+        AppUser targetUser = checkAndGetExpenseUser(login, canManageOther, expenseCreateData.getUserId());
         ExpenseRecord expenseRecord = new ExpenseRecord();
         expenseRecord.setAppUser(targetUser);
         expenseRecord.setRecordDate(expenseCreateData.getRecordDate());
@@ -59,6 +78,26 @@ public class ExpenseManagerImpl implements ExpenseManager {
         expenseRecord.setDescription(expenseCreateData.getDescription());
         expenseRepository.save(expenseRecord);
         return expenseRecord.getId();
+    }
+
+    @Transactional
+    @Override
+    public void updateExpense(ExpenseUpdateData data, String login, boolean canManageOther)
+            throws AppSecurityException, ValidationException, ExpenseNotFoundException {
+        AppUser targetUser = checkIfUserExists(data.getUserId());
+        Optional<ExpenseRecord> expenseRecordOpt = expenseRepository.findById(data.getId());
+        if (!expenseRecordOpt.isPresent()) {
+            throw new ExpenseNotFoundException(data.getId());
+        }
+        @SuppressWarnings("OptionalGetWithoutIsPresent") AppUser currentUser = userRepository.findByLogin(login).get();
+        checkManageOther(canManageOther, data.getUserId(), currentUser);
+        ExpenseRecord expenseRecord = expenseRecordOpt.get();
+        expenseRecord.setAppUser(targetUser);
+        expenseRecord.setRecordDate(data.getRecordDate());
+        expenseRecord.setComment(data.getComment());
+        expenseRecord.setCost(data.getCost());
+        expenseRecord.setDescription(data.getDescription());
+        expenseRepository.save(expenseRecord);
     }
 
     @Override

@@ -7,17 +7,21 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import ru.aborisov.testtask.config.PrivilegeAlias;
 import ru.aborisov.testtask.exception.AppSecurityException;
+import ru.aborisov.testtask.exception.ExpenseNotFoundException;
 import ru.aborisov.testtask.exception.ValidationException;
 import ru.aborisov.testtask.model.ExpenseManager;
 import ru.aborisov.testtask.resource.ExpenseCreateData;
 import ru.aborisov.testtask.resource.ExpenseData;
+import ru.aborisov.testtask.resource.ExpenseUpdateData;
 import ru.aborisov.testtask.resource.Id;
 import ru.aborisov.testtask.resource.OutputList;
+import ru.aborisov.testtask.resource.ResponseStatusBody;
 import ru.aborisov.testtask.resource.SearchQuery;
 
 @RestController
@@ -43,6 +47,16 @@ public class ExpenseController {
     @ResponseStatus(HttpStatus.OK)
     public OutputList<ExpenseData> searchExpenses(SearchQuery query, Authentication authentication) {
         return manager.findExpenseData(query, getLogin(authentication), getCanManageOther(authentication));
+    }
+
+    @PutMapping(
+            path = "/expense"
+    )
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseStatusBody updateExpense(@RequestBody ExpenseUpdateData data, Authentication authentication)
+            throws AppSecurityException, ExpenseNotFoundException, ValidationException {
+        manager.updateExpense(data, getLogin(authentication), getCanManageOther(authentication));
+        return new ResponseStatusBody("Запись изменена");
     }
 
 

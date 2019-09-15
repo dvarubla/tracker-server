@@ -7,13 +7,17 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.aborisov.testtask.exception.AppSecurityException;
+import ru.aborisov.testtask.exception.ExpenseNotFoundException;
 import ru.aborisov.testtask.exception.UserAlreadyExistsException;
 import ru.aborisov.testtask.exception.UserNotFoundException;
 import ru.aborisov.testtask.exception.ValidationException;
 
 @RestControllerAdvice
 public class ErrorHandler {
-    @ExceptionHandler({UserNotFoundException.class, UserAlreadyExistsException.class, ValidationException.class})
+    @ExceptionHandler({
+            UserNotFoundException.class, UserAlreadyExistsException.class,
+            ValidationException.class, ExpenseNotFoundException.class
+    })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Exception handleBadRequestException(Exception ex) {
         return ex;
