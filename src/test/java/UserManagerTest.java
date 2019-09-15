@@ -20,6 +20,7 @@ import ru.aborisov.testtask.resource.OutputList;
 import ru.aborisov.testtask.resource.RoleNameId;
 import ru.aborisov.testtask.resource.SearchQuery;
 import ru.aborisov.testtask.resource.User;
+import ru.aborisov.testtask.resource.UserCreateData;
 import ru.aborisov.testtask.resource.UserPublicData;
 import ru.aborisov.testtask.resource.UserUpdateData;
 
@@ -29,9 +30,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
@@ -141,13 +140,13 @@ class UserManagerTest {
 
     @Test
     void createAdminByAdmin() throws AppSecurityException, UserAlreadyExistsException, ValidationException {
-        UserUpdateData updateData = new UserUpdateData("admin2", "Администратор", Optional.empty(), 1, Optional.of("12345"));
+        UserCreateData createData = new UserCreateData("admin2", "Администратор", 1, "12345");
         Role adminRole = new Role("1", RoleAlias.ADMIN.getAlias(), new HashSet<>(), new HashSet<>());
         when(userRepository.existsByLogin("admin2")).thenReturn(false);
         when(roleRepository.findById(1)).thenReturn(Optional.of(adminRole));
         when(passEncoder.encode("12345")).thenReturn("54321");
 
-        assertTrue(userManager.createOrUpdateUser(updateData, true));
+        userManager.createUser(createData, true);
 
         verify(userRepository, times(1)).save(eq(
                 new AppUser("admin2", "54321", "Администратор", adminRole)
@@ -156,64 +155,51 @@ class UserManagerTest {
 
     @Test
     void updateManagerByManager() throws AppSecurityException, UserAlreadyExistsException, ValidationException {
-        UserUpdateData updateData = new UserUpdateData("manager", "Менеджер", Optional.of(5), 1, Optional.empty());
+        UserUpdateData updateData = new UserUpdateData("Менеджер", 5, 1, Optional.empty());
         Role managerRole = new Role("1", RoleAlias.MANAGER.getAlias(), new HashSet<>(), new HashSet<>());
         Role managerRoleOld = new Role("2", RoleAlias.MANAGER.getAlias(), new HashSet<>(), new HashSet<>());
         when(roleRepository.findById(1)).thenReturn(Optional.of(managerRole));
         when(userRepository.findById(5)).thenReturn(Optional.of(new AppUser("12", "134", "34", managerRoleOld)));
 
-        assertFalse(userManager.createOrUpdateUser(updateData, false));
+        userManager.updateUser(updateData, false);
 
         verify(userRepository, times(1)).save(eq(
-                new AppUser("manager", "134", "Менеджер", managerRole)
+                new AppUser("12", "134", "Менеджер", managerRole)
         ));
     }
 
     @Test
     void updateUserNoUserFail() {
-        UserUpdateData updateData = new UserUpdateData("manager", "Менеджер", Optional.of(5), 1, Optional.empty());
+        UserUpdateData updateData = new UserUpdateData("Менеджер", 5, 1, Optional.empty());
         Role managerRole = new Role("1", RoleAlias.MANAGER.getAlias(), new HashSet<>(), new HashSet<>());
         when(roleRepository.findById(1)).thenReturn(Optional.of(managerRole));
         when(userRepository.findById(5)).thenReturn(Optional.empty());
 
-        assertThrows(ValidationException.class, () -> userManager.createOrUpdateUser(updateData, false));
-
-        verify(userRepository, never()).save(any());
-    }
-
-    @Test
-    void createUserNoPasswordFail() {
-        UserUpdateData updateData = new UserUpdateData("admin2", "Администратор", Optional.empty(), 1, Optional.empty());
-        Role adminRole = new Role("1", RoleAlias.ADMIN.getAlias(), new HashSet<>(), new HashSet<>());
-        when(userRepository.existsByLogin("admin2")).thenReturn(false);
-        when(roleRepository.findById(1)).thenReturn(Optional.of(adminRole));
-        when(passEncoder.encode("12345")).thenReturn("54321");
-
-        assertThrows(ValidationException.class, () -> userManager.createOrUpdateUser(updateData, true));
+        assertThrows(ValidationException.class, () -> userManager.updateUser(updateData, false));
 
         verify(userRepository, never()).save(any());
     }
 
     @Test
     void updateUserNoRoleFail() {
-        UserUpdateData updateData = new UserUpdateData("manager", "Менеджер", Optional.of(5), 1, Optional.empty());
+        UserUpdateData updateData = new UserUpdateData("Менеджер", 5, 1, Optional.empty());
         when(userRepository.existsByLogin("manager")).thenReturn(false);
         when(roleRepository.findById(1)).thenReturn(Optional.empty());
 
-        assertThrows(ValidationException.class, () -> userManager.createOrUpdateUser(updateData, false));
+        assertThrows(ValidationException.class, () -> userManager.updateUser(updateData, false));
 
         verify(userRepository, never()).save(any());
     }
 
     @Test
     void createAdminByManagerFail() {
-        UserUpdateData updateData = new UserUpdateData("admin2", "Администратор", Optional.empty(), 1, Optional.of("12345"));
+        UserCreateData createData = new UserCreateData("admin2", "Администратор", 1, "12345");
         Role adminRole = new Role("1", RoleAlias.ADMIN.getAlias(), new HashSet<>(), new HashSet<>());
         when(userRepository.existsByLogin("admin2")).thenReturn(false);
         when(roleRepository.findById(1)).thenReturn(Optional.of(adminRole));
         when(passEncoder.encode("12345")).thenReturn("54321");
 
-        assertThrows(AppSecurityException.class, () -> userManager.createOrUpdateUser(updateData, false));
+        assertThrows(AppSecurityException.class, () -> userManager.createUser(createData, false));
 
         verify(userRepository, never()).save(any());
     }

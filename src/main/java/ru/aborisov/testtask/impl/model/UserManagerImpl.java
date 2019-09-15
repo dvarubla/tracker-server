@@ -19,6 +19,7 @@ import ru.aborisov.testtask.resource.OutputList;
 import ru.aborisov.testtask.resource.RoleNameId;
 import ru.aborisov.testtask.resource.SearchQuery;
 import ru.aborisov.testtask.resource.User;
+import ru.aborisov.testtask.resource.UserCreateData;
 import ru.aborisov.testtask.resource.UserPublicData;
 import ru.aborisov.testtask.resource.UserUpdateData;
 
@@ -96,38 +97,45 @@ public class UserManagerImpl implements UserManager {
                 .collect(Collectors.toList()));
     }
 
-    @Override
-    @Transactional
-    public boolean createOrUpdateUser(UserUpdateData data, boolean canManageAdmins)
-            throws UserAlreadyExistsException, ValidationException, AppSecurityException {
-        Optional<Role> role = roleRepository.findById(data.getRoleId());
+    private Role doRoleCheckAndGet(int roleId, boolean canManageAdmins) throws ValidationException, AppSecurityException {
+        Optional<Role> role = roleRepository.findById(roleId);
         if (!role.isPresent()) {
             throw new ValidationException("Указана несуществующая роль");
         }
         if (!canManageAdmins && role.get().getAlias().equals(RoleAlias.ADMIN.getAlias())) {
             throw new AppSecurityException("Вы не можете управлять администраторами");
         }
-        AppUser user;
-        if (data.getId().isPresent()) {
-            Optional<AppUser> userOpt = userRepository.findById(data.getId().get());
-            if (!userOpt.isPresent()) {
-                throw new ValidationException("Указан несуществующий пользователь");
-            }
-            user = userOpt.get();
-            user.setRole(role.get());
-            user.setLogin(data.getLogin());
-            if (data.getPassword().isPresent()) {
-                user.setPassword(encoder.encode(data.getPassword().get()));
-            }
-            user.setName(data.getName());
-        } else {
-            if (!data.getPassword().isPresent()) {
-                throw new ValidationException("Нужно указать пароль");
-            }
-            user = createUserCommon(data.getLogin(), data.getPassword().get(), data.getName());
+        return role.get();
+    }
+
+    @Override
+    @Transactional
+    public void updateUser(UserUpdateData data, boolean canManageAdmins)
+            throws ValidationException, AppSecurityException {
+        Role role = doRoleCheckAndGet(data.getRoleId(), canManageAdmins);
+        Optional<AppUser> userOpt = userRepository.findById(data.getId());
+        if (!userOpt.isPresent()) {
+            throw new ValidationException("Указан несуществующий пользователь");
         }
-        user.setRole(role.get());
+        AppUser user = userOpt.get();
+        user.setRole(role);
+        if (data.getPassword().isPresent()) {
+            user.setPassword(encoder.encode(data.getPassword().get()));
+        }
+        user.setName(data.getName());
+        user.setRole(role);
         userRepository.save(user);
-        return !data.getId().isPresent();
+    }
+
+
+    @Override
+    @Transactional
+    public int createUser(UserCreateData data, boolean canManageAdmins)
+            throws UserAlreadyExistsException, ValidationException, AppSecurityException {
+        Role role = doRoleCheckAndGet(data.getRoleId(), canManageAdmins);
+        AppUser user = createUserCommon(data.getLogin(), data.getPassword(), data.getName());
+        user.setRole(role);
+        userRepository.save(user);
+        return user.getId();
     }
 }

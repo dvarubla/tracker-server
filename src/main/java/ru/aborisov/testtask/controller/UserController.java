@@ -2,13 +2,13 @@ package ru.aborisov.testtask.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,6 +23,7 @@ import ru.aborisov.testtask.resource.OutputList;
 import ru.aborisov.testtask.resource.ResponseStatusBody;
 import ru.aborisov.testtask.resource.SearchQuery;
 import ru.aborisov.testtask.resource.User;
+import ru.aborisov.testtask.resource.UserCreateData;
 import ru.aborisov.testtask.resource.UserPublicData;
 import ru.aborisov.testtask.resource.UserUpdateData;
 
@@ -68,14 +69,22 @@ public class UserController {
     @PostMapping(
             path = "/allusers"
     )
-    public ResponseEntity<ResponseStatusBody> createOrUpdateUser(@RequestBody UserUpdateData data, Authentication authentication)
+    @ResponseStatus(HttpStatus.CREATED)
+    public Id createUser(@RequestBody UserCreateData data, Authentication authentication)
             throws AppSecurityException, UserAlreadyExistsException, ValidationException {
         boolean canManageAdmins = getCanManageAdmins(authentication);
-        boolean isNew = userManager.createOrUpdateUser(data, canManageAdmins);
-        return new ResponseEntity<>(
-                new ResponseStatusBody(isNew ? "Пользователь создан" : "Пользователь изменён"),
-                isNew ? HttpStatus.CREATED : HttpStatus.OK
-        );
+        return new Id(userManager.createUser(data, canManageAdmins));
+    }
+
+    @PutMapping(
+            path = "/allusers"
+    )
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseStatusBody updateUser(@RequestBody UserUpdateData data, Authentication authentication)
+            throws AppSecurityException, UserAlreadyExistsException, ValidationException {
+        boolean canManageAdmins = getCanManageAdmins(authentication);
+        userManager.updateUser(data, canManageAdmins);
+        return new ResponseStatusBody("Пользователь изменён");
     }
 
     private boolean getCanManageAdmins(Authentication authentication) {

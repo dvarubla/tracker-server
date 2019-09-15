@@ -3,19 +3,10 @@ package ru.aborisov.testtask.resource;
 import java.util.Optional;
 
 public class UserUpdateData {
-    private String login;
     private String name;
-    private Optional<Integer> id = Optional.empty();
+    private int id;
     private int roleId;
     private Optional<String> password = Optional.empty();
-
-    public String getLogin() {
-        return login;
-    }
-
-    public void setLogin(String login) {
-        this.login = login;
-    }
 
     public String getName() {
         return name;
@@ -25,11 +16,11 @@ public class UserUpdateData {
         this.name = name;
     }
 
-    public Optional<Integer> getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Optional<Integer> id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -44,8 +35,7 @@ public class UserUpdateData {
     public UserUpdateData() {
     }
 
-    public UserUpdateData(String login, String name, Optional<Integer> id, int roleId, Optional<String> password) {
-        this.login = login;
+    public UserUpdateData(String name, Integer id, int roleId, Optional<String> password) {
         this.name = name;
         this.id = id;
         this.roleId = roleId;
