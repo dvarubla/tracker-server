@@ -11,16 +11,19 @@ import ru.aborisov.testtask.exception.ExpenseNotFoundException;
 import ru.aborisov.testtask.exception.ValidationException;
 import ru.aborisov.testtask.impl.model.ExpenseManagerImpl;
 import ru.aborisov.testtask.model.ExpenseManager;
+import ru.aborisov.testtask.resource.DatePeriod;
 import ru.aborisov.testtask.resource.ExpenseCreateData;
 import ru.aborisov.testtask.resource.ExpenseData;
 import ru.aborisov.testtask.resource.ExpenseUpdateData;
 import ru.aborisov.testtask.resource.Id;
+import ru.aborisov.testtask.resource.MoneyValue;
 import ru.aborisov.testtask.resource.OutputList;
 import ru.aborisov.testtask.resource.SearchQuery;
 import ru.aborisov.testtask.resource.UserNameId;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -235,5 +238,31 @@ class ExpenseManagerTest {
         );
         manager.deleteExpense(new Id(567), "root", true);
         verify(expenseRepository).deleteById(567);
+    }
+
+
+
+    @Test
+    void findAverage() {
+        OffsetDateTime startDate = OffsetDateTime.now();
+        OffsetDateTime endDate = OffsetDateTime.now().plus(1, ChronoUnit.DAYS);
+        when(expenseRepository.getAverage(startDate, endDate)).thenReturn(BigDecimal.valueOf(55));
+
+        assertEquals(
+                manager.getAverageByPeriod(new DatePeriod(startDate, endDate), "root", true),
+                new MoneyValue(BigDecimal.valueOf(55))
+        );
+    }
+
+    @Test
+    void findTotal() {
+        OffsetDateTime startDate = OffsetDateTime.now();
+        OffsetDateTime endDate = OffsetDateTime.now().plus(1, ChronoUnit.DAYS);
+        when(expenseRepository.getTotal(startDate, endDate, "root")).thenReturn(BigDecimal.valueOf(55));
+
+        assertEquals(
+                manager.getTotalByPeriod(new DatePeriod(startDate, endDate), "root", false),
+                new MoneyValue(BigDecimal.valueOf(55))
+        );
     }
 }

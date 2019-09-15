@@ -11,10 +11,12 @@ import ru.aborisov.testtask.exception.AppSecurityException;
 import ru.aborisov.testtask.exception.ExpenseNotFoundException;
 import ru.aborisov.testtask.exception.ValidationException;
 import ru.aborisov.testtask.model.ExpenseManager;
+import ru.aborisov.testtask.resource.DatePeriod;
 import ru.aborisov.testtask.resource.ExpenseCreateData;
 import ru.aborisov.testtask.resource.ExpenseData;
 import ru.aborisov.testtask.resource.ExpenseUpdateData;
 import ru.aborisov.testtask.resource.Id;
+import ru.aborisov.testtask.resource.MoneyValue;
 import ru.aborisov.testtask.resource.OutputList;
 import ru.aborisov.testtask.resource.SearchQuery;
 import ru.aborisov.testtask.resource.UserNameId;
@@ -129,5 +131,24 @@ public class ExpenseManagerImpl implements ExpenseManager {
         @SuppressWarnings("OptionalGetWithoutIsPresent") AppUser currentUser = userRepository.findByLogin(login).get();
         checkManageOther(canManageOther, expenseRecordOpt.get().getId(), currentUser);
         expenseRepository.deleteById(id.getId());
+    }
+
+    @Override
+    public MoneyValue getAverageByPeriod(DatePeriod period, String login, boolean canManageOther) {
+        if (canManageOther) {
+            return new MoneyValue(expenseRepository.getAverage(period.getStart(), period.getEnd()));
+        } else {
+            return new MoneyValue(expenseRepository.getAverage(period.getStart(), period.getEnd(), login));
+        }
+    }
+
+    @Override
+    public MoneyValue getTotalByPeriod(DatePeriod period, String login, boolean canManageOther) {
+        if (canManageOther) {
+            return new MoneyValue(expenseRepository.getTotal(period.getStart(), period.getEnd()));
+        } else {
+            return new MoneyValue(expenseRepository.getTotal(period.getStart(), period.getEnd(), login));
+        }
+
     }
 }

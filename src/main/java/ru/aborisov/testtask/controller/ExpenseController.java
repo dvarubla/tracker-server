@@ -17,10 +17,12 @@ import ru.aborisov.testtask.exception.AppSecurityException;
 import ru.aborisov.testtask.exception.ExpenseNotFoundException;
 import ru.aborisov.testtask.exception.ValidationException;
 import ru.aborisov.testtask.model.ExpenseManager;
+import ru.aborisov.testtask.resource.DatePeriod;
 import ru.aborisov.testtask.resource.ExpenseCreateData;
 import ru.aborisov.testtask.resource.ExpenseData;
 import ru.aborisov.testtask.resource.ExpenseUpdateData;
 import ru.aborisov.testtask.resource.Id;
+import ru.aborisov.testtask.resource.MoneyValue;
 import ru.aborisov.testtask.resource.OutputList;
 import ru.aborisov.testtask.resource.ResponseStatusBody;
 import ru.aborisov.testtask.resource.SearchQuery;
@@ -70,6 +72,21 @@ public class ExpenseController {
         return new ResponseStatusBody("Запись удалёна");
     }
 
+    @GetMapping(
+            path = "/expenses/average"
+    )
+    @ResponseStatus(HttpStatus.OK)
+    public MoneyValue getAverageByPeriod(DatePeriod period, Authentication authentication) {
+        return manager.getAverageByPeriod(period, getLogin(authentication), getCanManageOther(authentication));
+    }
+
+    @GetMapping(
+            path = "/expenses/total"
+    )
+    @ResponseStatus(HttpStatus.OK)
+    public MoneyValue getTotalByPeriod(DatePeriod period, Authentication authentication) {
+        return manager.getTotalByPeriod(period, getLogin(authentication), getCanManageOther(authentication));
+    }
 
     private boolean getCanManageOther(Authentication authentication) {
         UserDetails details = (UserDetails) authentication.getPrincipal();

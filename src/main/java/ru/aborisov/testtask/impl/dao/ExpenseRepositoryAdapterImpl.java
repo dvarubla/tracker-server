@@ -9,6 +9,8 @@ import ru.aborisov.testtask.dao.ExpenseRepository;
 import ru.aborisov.testtask.dao.ExpenseRepositoryAdapter;
 import ru.aborisov.testtask.resource.SearchQuery;
 
+import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,5 +50,25 @@ public class ExpenseRepositoryAdapterImpl implements ExpenseRepositoryAdapter {
     @Override
     public void deleteById(int id) {
         expenseRepository.deleteById(id);
+    }
+
+    @Override
+    public BigDecimal getTotal(OffsetDateTime start, OffsetDateTime end, String login) {
+        return expenseRepository.getTotal(start, end, login);
+    }
+
+    @Override
+    public BigDecimal getAverage(OffsetDateTime startDate, OffsetDateTime endDate, String login) {
+        return expenseRepository.getAverage(startDate, endDate, login);
+    }
+
+    @Override
+    public BigDecimal getTotal(OffsetDateTime start, OffsetDateTime end) {
+        return expenseRepository.getTotal(start, end);
+    }
+
+    @Override
+    public BigDecimal getAverage(OffsetDateTime startDate, OffsetDateTime endDate) {
+        return expenseRepository.getAverage(startDate, endDate);
     }
 }
