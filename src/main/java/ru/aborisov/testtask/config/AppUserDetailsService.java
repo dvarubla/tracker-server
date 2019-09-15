@@ -36,7 +36,7 @@ public class AppUserDetailsService implements UserDetailsService, AnonAuthoritie
             throw new UsernameNotFoundException("Пользователь не найден");
         }
         AppUser user = userOpt.get();
-        return new User(user.getName(), user.getPassword(), user.getRole().getPrivileges().stream().map(
+        return new User(user.getLogin(), user.getPassword(), user.getRole().getPrivileges().stream().map(
                 privilege -> new SimpleGrantedAuthority(privilege.getAlias())
         ).collect(Collectors.toList()));
     }

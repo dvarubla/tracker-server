@@ -36,3 +36,15 @@ create table app_user (
 
 create sequence user_id_seq start with 1 increment by 1;
 
+create table expense_record (
+  id int not null primary key,
+  record_date timestamp with time zone not null,
+  cost decimal(10, 2) not null,
+  description text not null,
+  comment text not null,
+  app_user_id int not null,
+  constraint fk_app_user_id foreign key (app_user_id) references app_user(id) on delete cascade
+);
+
+create sequence expense_id_seq start with 1 increment by 1;
+
