@@ -13,6 +13,7 @@ public interface UserRepository extends PagingAndSortingRepository<AppUser, Inte
     boolean existsById(int id);
     Optional<AppUser> findByLogin(String login);
 
-    @Query("select u from AppUser u where lower(u.login) like %:query% or lower(name) like %:query%")
+    @Query("select u from AppUser u where lower(u.login) like lower(concat('%', :query,'%'))" +
+            " or lower(name) like lower(concat('%', :query,'%'))")
     List<AppUser> searchByAllFields(@Param("query") String query, Pageable pageable);
 }

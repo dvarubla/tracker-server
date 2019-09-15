@@ -9,15 +9,19 @@ import java.util.List;
 
 public interface ExpenseRepository extends PagingAndSortingRepository<ExpenseRecord, Integer> {
     @Query(
-            "select e from ExpenseRecord e where lower(e.description) like %:query% or lower(e.comment) like %:query% " +
-            "or cast(e.recordDate as string) like %:query% or cast(e.cost as string) like %:query%"
+            "select e from ExpenseRecord e where lower(e.description) like lower(concat('%', :query,'%'))" +
+                    " or lower(e.comment) like lower(concat('%', :query,'%')) " +
+                    "or cast(e.recordDate as string) like lower(concat('%', :query,'%')) " +
+                    "or cast(e.cost as string) like lower(concat('%', :query,'%'))"
     )
     List<ExpenseRecord> searchByAllFields(@Param("query") String query, Pageable pageable);
 
     @Query(
             "select e from ExpenseRecord e where e.appUser.login = :login and ( " +
-            "lower(e.description) like %:query% or lower(e.comment) like %:query% " +
-            "or cast(e.recordDate as string) like %:query% or cast(e.cost as string) like %:query%)"
+            "lower(e.description) like lower(concat('%', :query,'%')) " +
+                    "or lower(e.comment) like lower(concat('%', :query,'%')) " +
+            "or cast(e.recordDate as string) like lower(concat('%', :query,'%')) " +
+                    "or cast(e.cost as string) like lower(concat('%', :query,'%')))"
     )
     List<ExpenseRecord> searchByAllFields(@Param("query") String query, @Param("login") String login, Pageable pageable);
 }
