@@ -1,9 +1,18 @@
 package ru.aborisov.testtask.resource;
 
+
+import org.hibernate.validator.constraints.NotBlank;
+
+import javax.validation.constraints.NotNull;
+
 public class UserCreateData {
+    @NotBlank(message = "Логин не может быть пустым")
     private String login;
+    @NotBlank(message = "Имя не может быть пустым")
     private String name;
-    private int roleId;
+    @NotNull(message = "ID роли должен быть заполнен")
+    private Integer roleId;
+    @NotBlank(message = "Пароль не может быть пустым")
     private String password;
 
     public String getLogin() {

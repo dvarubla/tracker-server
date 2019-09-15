@@ -1,7 +1,10 @@
 package ru.aborisov.testtask.resource;
 
+import javax.validation.constraints.NotNull;
+
 public class Id {
-    private int id;
+    @NotNull(message = "id не может быть null")
+    private Integer id;
 
     public Id() {
 

@@ -15,6 +15,8 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
+import org.springframework.validation.Validator;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
@@ -33,6 +35,11 @@ import java.util.List;
 @EnableWebMvc
 @ComponentScan("ru.aborisov.testtask")
 public class AppInitializer extends AbstractSecurityWebApplicationInitializer implements WebMvcConfigurer {
+
+    @Override
+    public Validator getValidator(){
+        return new LocalValidatorFactoryBean();
+    }
 
     @Override
     public void addFormatters(FormatterRegistry registry) {

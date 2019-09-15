@@ -1,7 +1,11 @@
 package ru.aborisov.testtask.resource;
 
+import org.hibernate.validator.constraints.NotBlank;
+
 public class Credentials {
+    @NotBlank(message = "Логин не может быть пустым")
     private String login;
+    @NotBlank(message = "Пароль не может быть пустым")
     private String password;
 
     public Credentials() {

@@ -29,6 +29,8 @@ import ru.aborisov.testtask.resource.UserDataPrivilegies;
 import ru.aborisov.testtask.resource.UserPublicData;
 import ru.aborisov.testtask.resource.UserUpdateData;
 
+import javax.validation.Valid;
+
 @RestController
 public class UserController {
     private UserManager userManager;
@@ -43,7 +45,7 @@ public class UserController {
     )
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseStatusBody createUser(
-            @RequestBody User user
+            @Valid @RequestBody User user
     ) throws UserAlreadyExistsException {
         userManager.createUser(user);
         return new ResponseStatusBody("Пользователь был создан");
@@ -53,7 +55,7 @@ public class UserController {
             path = "/user"
     )
     @ResponseStatus(HttpStatus.OK)
-    public ResponseStatusBody deleteUser(Id id, Authentication authentication)
+    public ResponseStatusBody deleteUser(@Valid Id id, Authentication authentication)
             throws UserNotFoundException, AppSecurityException {
         boolean canManageAdmins = getCanManageAdmins(authentication);
         userManager.deleteUser(id, canManageAdmins);
@@ -64,7 +66,7 @@ public class UserController {
             path = "/users"
     )
     @ResponseStatus(HttpStatus.OK)
-    public OutputList<UserPublicData> searchUsers(SearchQuery query) {
+    public OutputList<UserPublicData> searchUsers(@Valid SearchQuery query) {
         return userManager.findPublicUserData(query);
     }
 
@@ -72,7 +74,7 @@ public class UserController {
             path = "/user"
     )
     @ResponseStatus(HttpStatus.CREATED)
-    public Id createUser(@RequestBody UserCreateData data, Authentication authentication)
+    public Id createUser(@Valid @RequestBody UserCreateData data, Authentication authentication)
             throws AppSecurityException, UserAlreadyExistsException, ValidationException {
         boolean canManageAdmins = getCanManageAdmins(authentication);
         return new Id(userManager.createUser(data, canManageAdmins));
@@ -90,7 +92,7 @@ public class UserController {
             path = "/user"
     )
     @ResponseStatus(HttpStatus.OK)
-    public ResponseStatusBody updateUser(@RequestBody UserUpdateData data, Authentication authentication)
+    public ResponseStatusBody updateUser(@Valid @RequestBody UserUpdateData data, Authentication authentication)
             throws AppSecurityException, UserAlreadyExistsException, ValidationException {
         boolean canManageAdmins = getCanManageAdmins(authentication);
         userManager.updateUser(data, canManageAdmins);

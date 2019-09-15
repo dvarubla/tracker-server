@@ -1,16 +1,33 @@
 package ru.aborisov.testtask.resource;
 
+import org.hibernate.validator.constraints.NotBlank;
+
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.Objects;
 
 public class ExpenseUpdateData {
-    private int id;
+    @NotNull(message = "Id не может быть null")
+    private Integer id;
+    @NotNull(message = "Дата не может быть null")
     private OffsetDateTime recordDate;
+
+    @NotNull(message = "Стоимость не может быть null")
+    @Min(value = 0, message = "Стоимость всегда больше 0")
+    @Max(value = 10000000, message = "Слишком большая стоимость")
     private BigDecimal cost;
+
+    @NotBlank(message = "Описание не может быть пустым")
     private String description;
+
+    @NotBlank(message = "Комментарий не может быть пустым")
     private String comment;
-    private int userId;
+
+    @NotNull(message = "Id не может быть null")
+    private Integer userId;
 
     public ExpenseUpdateData() {
     }
@@ -79,8 +96,8 @@ public class ExpenseUpdateData {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ExpenseUpdateData that = (ExpenseUpdateData) o;
-        return id == that.id &&
-                userId == that.userId &&
+        return id.equals(that.id) &&
+                userId.equals(that.userId) &&
                 Objects.equals(recordDate, that.recordDate) &&
                 Objects.equals(cost, that.cost) &&
                 Objects.equals(description, that.description) &&

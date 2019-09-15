@@ -1,10 +1,15 @@
 package ru.aborisov.testtask.resource;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import org.hibernate.validator.constraints.NotBlank;
+
+import javax.validation.Valid;
 
 public class User {
     @JsonUnwrapped
+    @Valid
     private Credentials credentials;
+    @NotBlank(message = "Имя не может быть пустым")
     private String name;
 
     public User() {

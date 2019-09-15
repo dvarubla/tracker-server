@@ -1,10 +1,13 @@
 package ru.aborisov.testtask.resource;
 
+import javax.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 
 public class DatePeriod {
-
+    @NotNull(message = "Дата начала не может быть null")
     private OffsetDateTime start;
+
+    @NotNull(message = "Дата конца не может быть null")
     private OffsetDateTime end;
 
     public DatePeriod() {

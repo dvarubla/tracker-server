@@ -1,16 +1,27 @@
 package ru.aborisov.testtask.resource;
 
+import org.hibernate.validator.constraints.NotBlank;
+
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 
 public class ExpenseCreateData {
+    @NotNull(message = "Дата не может быть null")
     private OffsetDateTime recordDate;
 
+    @NotNull(message = "Стоимость не может быть null")
+    @Min(value = 0, message = "Стоимость всегда больше 0")
+    @Max(value = 10000000, message = "Слишком большая стоимость")
     private BigDecimal cost;
 
+    @NotBlank(message = "Описание не может быть пустым")
     private String description;
 
+    @NotBlank(message = "Комментарий не может быть пустым")
     private String comment;
 
     private Optional<Integer> userId = Optional.empty();

@@ -1,11 +1,17 @@
 package ru.aborisov.testtask.resource;
 
+import org.hibernate.validator.constraints.NotBlank;
+
+import javax.validation.constraints.NotNull;
 import java.util.Optional;
 
 public class UserUpdateData {
+    @NotBlank(message = "Имя не может быть пустым")
     private String name;
-    private int id;
-    private int roleId;
+    @NotNull(message = "id не может быть null")
+    private Integer id;
+    @NotNull(message = "id роли не может быть null")
+    private Integer roleId;
     private Optional<String> password = Optional.empty();
 
     public String getName() {

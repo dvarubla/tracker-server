@@ -27,6 +27,8 @@ import ru.aborisov.testtask.resource.OutputList;
 import ru.aborisov.testtask.resource.ResponseStatusBody;
 import ru.aborisov.testtask.resource.SearchQuery;
 
+import javax.validation.Valid;
+
 @RestController
 public class ExpenseController {
     private final ExpenseManager manager;
@@ -37,7 +39,7 @@ public class ExpenseController {
     }
 
     @PostMapping("/expense")
-    public Id createExpense(@RequestBody ExpenseCreateData data, Authentication authentication)
+    public Id createExpense(@Valid @RequestBody ExpenseCreateData data, Authentication authentication)
             throws ValidationException, AppSecurityException {
         return new Id(
                 manager.createExpense(data, getLogin(authentication), getCanManageOther(authentication))
@@ -48,7 +50,7 @@ public class ExpenseController {
             path = "/expenses"
     )
     @ResponseStatus(HttpStatus.OK)
-    public OutputList<ExpenseData> searchExpenses(SearchQuery query, Authentication authentication) {
+    public OutputList<ExpenseData> searchExpenses(@Valid SearchQuery query, Authentication authentication) {
         return manager.findExpenseData(query, getLogin(authentication), getCanManageOther(authentication));
     }
 
@@ -56,7 +58,7 @@ public class ExpenseController {
             path = "/expense"
     )
     @ResponseStatus(HttpStatus.OK)
-    public ResponseStatusBody updateExpense(@RequestBody ExpenseUpdateData data, Authentication authentication)
+    public ResponseStatusBody updateExpense(@Valid @RequestBody ExpenseUpdateData data, Authentication authentication)
             throws AppSecurityException, ExpenseNotFoundException, ValidationException {
         manager.updateExpense(data, getLogin(authentication), getCanManageOther(authentication));
         return new ResponseStatusBody("Запись изменена");
@@ -66,7 +68,7 @@ public class ExpenseController {
             path = "/expense"
     )
     @ResponseStatus(HttpStatus.OK)
-    public ResponseStatusBody deleteUser(Id id, Authentication authentication)
+    public ResponseStatusBody deleteUser(@Valid Id id, Authentication authentication)
             throws ExpenseNotFoundException, AppSecurityException {
         manager.deleteExpense(id, getLogin(authentication), getCanManageOther(authentication));
         return new ResponseStatusBody("Запись удалёна");
@@ -76,7 +78,7 @@ public class ExpenseController {
             path = "/expenses/average"
     )
     @ResponseStatus(HttpStatus.OK)
-    public MoneyValue getAverageByPeriod(DatePeriod period, Authentication authentication) {
+    public MoneyValue getAverageByPeriod(@Valid DatePeriod period, Authentication authentication) {
         return manager.getAverageByPeriod(period, getLogin(authentication), getCanManageOther(authentication));
     }
 
@@ -84,7 +86,7 @@ public class ExpenseController {
             path = "/expenses/total"
     )
     @ResponseStatus(HttpStatus.OK)
-    public MoneyValue getTotalByPeriod(DatePeriod period, Authentication authentication) {
+    public MoneyValue getTotalByPeriod(@Valid DatePeriod period, Authentication authentication) {
         return manager.getTotalByPeriod(period, getLogin(authentication), getCanManageOther(authentication));
     }
 

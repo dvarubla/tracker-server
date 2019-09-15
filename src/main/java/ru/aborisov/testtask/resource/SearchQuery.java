@@ -1,10 +1,14 @@
 package ru.aborisov.testtask.resource;
 
+import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
 public class SearchQuery {
-    private int page;
-    private int count;
+    @NotNull(message = "Номер страницы не может быть пустым")
+    private Integer page;
+    @NotNull(message = "Число элементов не может быть пустым")
+    private Integer count;
+    @NotNull(message = "Запрос не может быть null")
     private String query;
 
     public SearchQuery() {
@@ -45,8 +49,8 @@ public class SearchQuery {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SearchQuery that = (SearchQuery) o;
-        return page == that.page &&
-                count == that.count &&
+        return page.equals(that.page) &&
+                count.equals(that.count) &&
                 Objects.equals(query, that.query);
     }
 
