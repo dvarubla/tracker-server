@@ -16,10 +16,12 @@ import ru.aborisov.testtask.exception.ValidationException;
 import ru.aborisov.testtask.model.UserManager;
 import ru.aborisov.testtask.resource.Id;
 import ru.aborisov.testtask.resource.OutputList;
+import ru.aborisov.testtask.resource.PrivilegeData;
 import ru.aborisov.testtask.resource.RoleNameId;
 import ru.aborisov.testtask.resource.SearchQuery;
 import ru.aborisov.testtask.resource.User;
 import ru.aborisov.testtask.resource.UserCreateData;
+import ru.aborisov.testtask.resource.UserDataPrivilegies;
 import ru.aborisov.testtask.resource.UserPublicData;
 import ru.aborisov.testtask.resource.UserUpdateData;
 
@@ -56,6 +58,21 @@ public class UserManagerImpl implements UserManager {
 
     @Override
     @Transactional
+    public UserDataPrivilegies getUser(String login) throws UserNotFoundException {
+        Optional<AppUser> user = userRepository.findByLogin(login);
+        if (!user.isPresent()) {
+            throw new UserNotFoundException(login);
+        }
+        return new UserDataPrivilegies(
+                createUserPublicData(user.get()),
+                user.get().getRole().getPrivileges().stream()
+                        .map(p -> new PrivilegeData(p.getAlias(), p.getName()))
+                        .collect(Collectors.toList())
+        );
+    }
+
+    @Override
+    @Transactional
     public void createUser(User userData) throws UserAlreadyExistsException {
         AppUser user = createUserCommon(
                 userData.getCredentials().getLogin(), userData.getCredentials().getPassword(), userData.getName()
@@ -83,17 +100,19 @@ public class UserManagerImpl implements UserManager {
         userRepository.deleteById(id.getId());
     }
 
+    private UserPublicData createUserPublicData(AppUser user) {
+        return new UserPublicData(
+                user.getLogin(), user.getName(), user.getId(),
+                new RoleNameId(user.getRole().getName(), user.getRole().getId())
+        );
+    }
+
     @Override
     @Transactional
     public OutputList<UserPublicData> findPublicUserData(SearchQuery query) {
         return new OutputList<>(userRepository
                 .searchByAllFields(query).stream()
-                .map(user ->
-                        new UserPublicData(
-                                user.getLogin(), user.getName(), user.getId(),
-                                new RoleNameId(user.getRole().getName(), user.getRole().getId())
-                        )
-                )
+                .map(this::createUserPublicData)
                 .collect(Collectors.toList()));
     }
 

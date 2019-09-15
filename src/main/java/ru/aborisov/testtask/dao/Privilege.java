@@ -22,6 +22,16 @@ public class Privilege {
     )
     private int id;
 
+    public Privilege() {
+    }
+
+    public Privilege(String name, String alias) {
+        this.name = name;
+        this.alias = alias;
+    }
+
+    private String name;
+
     @NaturalId
     private String alias;
 
@@ -61,5 +71,13 @@ public class Privilege {
 
     public int hashCode() {
         return Objects.hash(alias);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

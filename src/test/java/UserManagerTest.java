@@ -5,6 +5,7 @@ import org.mockito.Mockito;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import ru.aborisov.testtask.config.RoleAlias;
 import ru.aborisov.testtask.dao.AppUser;
+import ru.aborisov.testtask.dao.Privilege;
 import ru.aborisov.testtask.dao.Role;
 import ru.aborisov.testtask.dao.RoleRepository;
 import ru.aborisov.testtask.dao.UserRepositoryAdapter;
@@ -17,10 +18,12 @@ import ru.aborisov.testtask.model.UserManager;
 import ru.aborisov.testtask.resource.Credentials;
 import ru.aborisov.testtask.resource.Id;
 import ru.aborisov.testtask.resource.OutputList;
+import ru.aborisov.testtask.resource.PrivilegeData;
 import ru.aborisov.testtask.resource.RoleNameId;
 import ru.aborisov.testtask.resource.SearchQuery;
 import ru.aborisov.testtask.resource.User;
 import ru.aborisov.testtask.resource.UserCreateData;
+import ru.aborisov.testtask.resource.UserDataPrivilegies;
 import ru.aborisov.testtask.resource.UserPublicData;
 import ru.aborisov.testtask.resource.UserUpdateData;
 
@@ -202,5 +205,29 @@ class UserManagerTest {
         assertThrows(AppSecurityException.class, () -> userManager.createUser(createData, false));
 
         verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void getUser() throws UserNotFoundException {
+        AppUser user = new AppUser(
+                789, "root", "54321", "Root Name",
+                new Role(
+                        "1",
+                        "user",
+                        new HashSet<>(),
+                        new HashSet<>(
+                            Arrays.asList(
+                                    new Privilege("pr1", "al1"), new Privilege("pr2", "al2")
+                            )
+                        ),
+                        6
+                )
+        );
+        when(userRepository.findByLogin("root")).thenReturn(Optional.of(user));
+
+        assertEquals(userManager.getUser("root"), new UserDataPrivilegies(
+                new UserPublicData("root", "Root Name", 789, new RoleNameId("1", 6)),
+                Arrays.asList(new PrivilegeData("al1", "pr1"), new PrivilegeData("al2", "pr2"))
+        ));
     }
 }

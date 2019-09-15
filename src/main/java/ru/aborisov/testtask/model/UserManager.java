@@ -9,10 +9,12 @@ import ru.aborisov.testtask.resource.OutputList;
 import ru.aborisov.testtask.resource.SearchQuery;
 import ru.aborisov.testtask.resource.User;
 import ru.aborisov.testtask.resource.UserCreateData;
+import ru.aborisov.testtask.resource.UserDataPrivilegies;
 import ru.aborisov.testtask.resource.UserPublicData;
 import ru.aborisov.testtask.resource.UserUpdateData;
 
 public interface UserManager {
+    UserDataPrivilegies getUser(String login) throws UserNotFoundException;
     void createUser(User userData) throws UserAlreadyExistsException;
     void deleteUser(Id id, boolean canManageAdmins) throws UserNotFoundException, AppSecurityException;
     OutputList<UserPublicData> findPublicUserData(SearchQuery query);

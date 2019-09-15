@@ -24,6 +24,7 @@ import ru.aborisov.testtask.resource.ResponseStatusBody;
 import ru.aborisov.testtask.resource.SearchQuery;
 import ru.aborisov.testtask.resource.User;
 import ru.aborisov.testtask.resource.UserCreateData;
+import ru.aborisov.testtask.resource.UserDataPrivilegies;
 import ru.aborisov.testtask.resource.UserPublicData;
 import ru.aborisov.testtask.resource.UserUpdateData;
 
@@ -74,6 +75,14 @@ public class UserController {
             throws AppSecurityException, UserAlreadyExistsException, ValidationException {
         boolean canManageAdmins = getCanManageAdmins(authentication);
         return new Id(userManager.createUser(data, canManageAdmins));
+    }
+
+    @GetMapping(
+            path = "/user/current"
+    )
+    @ResponseStatus(HttpStatus.OK)
+    public UserDataPrivilegies getCurrentUser(Authentication authentication) throws UserNotFoundException {
+        return userManager.getUser(((UserDetails) authentication.getPrincipal()).getUsername());
     }
 
     @PutMapping(
