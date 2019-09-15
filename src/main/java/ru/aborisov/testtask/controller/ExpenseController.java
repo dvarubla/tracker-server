@@ -34,7 +34,7 @@ public class ExpenseController {
         this.manager = manager;
     }
 
-    @PostMapping("/expenses")
+    @PostMapping("/expense")
     public Id createExpense(@RequestBody ExpenseCreateData data, Authentication authentication)
             throws ValidationException, AppSecurityException {
         return new Id(
@@ -64,7 +64,7 @@ public class ExpenseController {
             path = "/expense"
     )
     @ResponseStatus(HttpStatus.OK)
-    public ResponseStatusBody deleteUser(@RequestBody Id id, Authentication authentication)
+    public ResponseStatusBody deleteUser(Id id, Authentication authentication)
             throws ExpenseNotFoundException, AppSecurityException {
         manager.deleteExpense(id, getLogin(authentication), getCanManageOther(authentication));
         return new ResponseStatusBody("Запись удалёна");

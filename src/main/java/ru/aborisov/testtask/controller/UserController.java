@@ -39,7 +39,7 @@ public class UserController {
     }
 
     @PostMapping(
-            path = "/users"
+            path = "/user/register"
     )
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseStatusBody createUser(
@@ -53,7 +53,7 @@ public class UserController {
             path = "/user"
     )
     @ResponseStatus(HttpStatus.OK)
-    public ResponseStatusBody deleteUser(@RequestBody Id id, Authentication authentication)
+    public ResponseStatusBody deleteUser(Id id, Authentication authentication)
             throws UserNotFoundException, AppSecurityException {
         boolean canManageAdmins = getCanManageAdmins(authentication);
         userManager.deleteUser(id, canManageAdmins);
@@ -69,7 +69,7 @@ public class UserController {
     }
 
     @PostMapping(
-            path = "/allusers"
+            path = "/user"
     )
     @ResponseStatus(HttpStatus.CREATED)
     public Id createUser(@RequestBody UserCreateData data, Authentication authentication)
@@ -87,7 +87,7 @@ public class UserController {
     }
 
     @PutMapping(
-            path = "/allusers"
+            path = "/user"
     )
     @ResponseStatus(HttpStatus.OK)
     public ResponseStatusBody updateUser(@RequestBody UserUpdateData data, Authentication authentication)
