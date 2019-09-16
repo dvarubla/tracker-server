@@ -1,5 +1,7 @@
 package ru.aborisov.testtask.controller;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -30,6 +32,7 @@ import ru.aborisov.testtask.resource.SearchQuery;
 import javax.validation.Valid;
 
 @RestController
+@Api("Управления записями")
 public class ExpenseController {
     private final ExpenseManager manager;
 
@@ -38,6 +41,7 @@ public class ExpenseController {
         this.manager = manager;
     }
 
+    @ApiOperation("Создание записи")
     @PostMapping("/expense")
     public Id createExpense(@Valid @RequestBody ExpenseCreateData data, Authentication authentication)
             throws ValidationException, AppSecurityException {
@@ -46,6 +50,7 @@ public class ExpenseController {
         );
     }
 
+    @ApiOperation("Поиск по записям")
     @GetMapping(
             path = "/expenses"
     )
@@ -54,6 +59,7 @@ public class ExpenseController {
         return manager.findExpenseData(query, getLogin(authentication), getCanManageOther(authentication));
     }
 
+    @ApiOperation("Изменене записи")
     @PutMapping(
             path = "/expense"
     )
@@ -64,6 +70,7 @@ public class ExpenseController {
         return new ResponseStatusBody("Запись изменена");
     }
 
+    @ApiOperation("Удаление записи")
     @DeleteMapping(
             path = "/expense"
     )
@@ -74,6 +81,7 @@ public class ExpenseController {
         return new ResponseStatusBody("Запись удалёна");
     }
 
+    @ApiOperation("Получение среднего числа записей за период")
     @GetMapping(
             path = "/expenses/average"
     )
@@ -82,6 +90,7 @@ public class ExpenseController {
         return manager.getAverageByPeriod(period, getLogin(authentication), getCanManageOther(authentication));
     }
 
+    @ApiOperation("Получение среднего числа записей за период")
     @GetMapping(
             path = "/expenses/total"
     )

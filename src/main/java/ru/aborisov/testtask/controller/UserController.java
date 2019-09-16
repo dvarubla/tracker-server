@@ -1,5 +1,7 @@
 package ru.aborisov.testtask.controller;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -32,6 +34,7 @@ import ru.aborisov.testtask.resource.UserUpdateData;
 import javax.validation.Valid;
 
 @RestController
+@Api("Управление пользователями")
 public class UserController {
     private UserManager userManager;
 
@@ -40,6 +43,7 @@ public class UserController {
         this.userManager = userManager;
     }
 
+    @ApiOperation("Регистрация пользователя, может выполняться под любым пользователем")
     @PostMapping(
             path = "/user/register"
     )
@@ -51,6 +55,7 @@ public class UserController {
         return new ResponseStatusBody("Пользователь был создан");
     }
 
+    @ApiOperation("Удаление пользователя")
     @DeleteMapping(
             path = "/user"
     )
@@ -62,6 +67,7 @@ public class UserController {
         return new ResponseStatusBody("Пользователь был удалён");
     }
 
+    @ApiOperation("Поиск пользователей")
     @GetMapping(
             path = "/users"
     )
@@ -70,6 +76,7 @@ public class UserController {
         return userManager.findPublicUserData(query);
     }
 
+    @ApiOperation("Создание пользователей, требуются привилегии для управления")
     @PostMapping(
             path = "/user"
     )
@@ -80,6 +87,7 @@ public class UserController {
         return new Id(userManager.createUser(data, canManageAdmins));
     }
 
+    @ApiOperation("Получить данные о текущем пользователе")
     @GetMapping(
             path = "/user/current"
     )
@@ -88,6 +96,7 @@ public class UserController {
         return userManager.getUser(((UserDetails) authentication.getPrincipal()).getUsername());
     }
 
+    @ApiOperation("Обновление пользователей, требуются привилегии для управления")
     @PutMapping(
             path = "/user"
     )
@@ -106,6 +115,7 @@ public class UserController {
         );
     }
 
+    @ApiOperation("Получение списка всех ролей, которые можно создавать")
     @GetMapping(
             path = "/roles"
     )

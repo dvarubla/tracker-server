@@ -53,6 +53,12 @@ public class AppInitializer extends AbstractSecurityWebApplicationInitializer im
         registry
                 .addResourceHandler("/static/**")
                 .addResourceLocations("file:testtaskstatic/");
+
+        registry.addResourceHandler("swagger-ui.html")
+                .addResourceLocations("classpath:/META-INF/resources/");
+
+        registry.addResourceHandler("/webjars/**")
+                .addResourceLocations("classpath:/META-INF/resources/webjars/");
     }
 
     @Bean
